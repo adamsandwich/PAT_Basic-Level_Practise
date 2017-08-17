@@ -1,48 +1,52 @@
-#include<iostream>
-#include<string>
-#include<vector>
-#include<algorithm>
-using namespace std;
-bool com(int i, int j,int tol)
+//copy from OliverLew
+#include <stdio.h>
+
+#define SQR(X) ((X)*(X))
+#define R(COLOR) ((COLOR & 0XFF0000) >> 16)
+#define G(COLOR) ((COLOR & 0X00FF00) >> 8)
+#define B(COLOR) (COLOR & 0X0000FF)
+#define D(C1, C2) (SQR(R(C1) - R(C2)) + SQR(G(C1) - G(C2)) +  SQR(B(C1) - B(C2)))
+
+int iUnique(int array[][1000], int x, int y, int x0, int y0)
 {
-	if (i - j > tol)return true;
-	else return false;
+    for(int i = 0; i < x; i++)
+        for(int j = 0; j < y; j++)
+            if(array[i][j] == array[x0][y0] && i != x0 && j != y0)
+                return 0;
+    return 1;
 }
+
 int main()
 {
-	//m 列数
-	//n 行数
-	//tol 阈值
-	int m, n, tol, color[1000][1000], unique, counter = 0, x, y;
-	cin >> m >> n >> tol;
-	//读入图像
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < m; j++)
-			cin >> color[i][j];
-	for (int i = 0; i < n; i++)
-	{
+    int M, N, TOL;
+    scanf("%d %d %d", &M, &N, &TOL);
 
-		for (int j = 0; j < m; j++)
-		{
-			unique = 0;
-			if (j + 1 == m)unique++;
-			if (i + 1 == n)unique++;
-			if (j - 1 == -1)unique++;
-			if (i - 1 == -1)unique++;
-			if (j + 1 < m&&com(color[i][j], color[i][j + 1], tol))unique++;//→
-			if (j + 1 < m&&i + 1 < n&&com(color[i][j], color[i + 1][j + 1],tol))unique++;//↘
-			if (i + 1 < n&&com(color[i][j], color[i + 1][j], tol))unique++;//↓
-			if (j - 1 >= 0 && i + 1 < n && com(color[i][j], color[i + 1][j - 1], tol))unique++;//↙
-			if (j - 1 >= 0 && com(color[i][j], color[i][j - 1], tol))unique++;//←
-			if (j - 1 >= 0 && i - 1 >= 0 && com(color[i][j], color[i - 1][j - 1], tol))unique++;//↖
-			if (i - 1 >=0&&com(color[i][j], color[i - 1][j], tol))unique++;//↑
-			if (j + 1 <m&&i - 1 >=0&&com(color[i][j], color[i - 1][j + 1], tol))unique++;//↗
-			if (unique == 8) {  counter++; x = i + 1; y = j + 1;}
-		}
-	}
-	if (counter == 1)cout << "(" << y << ", " << x << "): " << color[x - 1][y - 1];
-	if (counter > 1)cout << "Not Unique";
-	if (counter == 0)cout << "Not Exist";
-	system("pause");
-	return 0;
+    int fig[1000][1000];
+    for(int i = 0; i < N; i++)
+        for(int j = 0; j < M; j++)
+            scanf("%d", &fig[i][j]);
+
+    int count = 0, M0, N0;
+    for(int i = 0; i < N; i ++)
+        for (int j = 0; j < M; j++)
+            if((i ==   0   ? 1 : D(fig[i][j], fig[i - 1][j - 1]) > SQR(TOL))
+            && (i ==   0   ? 1 : D(fig[i][j], fig[i - 1][j    ]) > SQR(TOL))
+            && (i ==   0   ? 1 : D(fig[i][j], fig[i - 1][j + 1]) > SQR(TOL))
+            && (j ==   0   ? 1 : D(fig[i][j], fig[i    ][j - 1]) > SQR(TOL))
+            && (j == M - 1 ? 1 : D(fig[i][j], fig[i    ][j + 1]) > SQR(TOL))
+            && (i == N - 1 ? 1 : D(fig[i][j], fig[i + 1][j - 1]) > SQR(TOL))
+            && (i == N - 1 ? 1 : D(fig[i][j], fig[i + 1][j    ]) > SQR(TOL))
+            && (i == N - 1 ? 1 : D(fig[i][j], fig[i + 1][j + 1]) > SQR(TOL))
+            && iUnique(fig, N, M, i, j))
+            {
+                count++;
+                N0 = i;
+                M0 = j;
+            }
+
+    if(count == 0)  printf("Not Exist");
+    if(count == 1)  printf("(%d, %d): %d", M0 + 1, N0 + 1, fig[N0][M0]);
+    if(count >= 2)  printf("Not Unique");
+
+    return 0;
 }
